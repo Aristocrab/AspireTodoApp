@@ -1,0 +1,83 @@
+<div class="max-w-xl mx-auto p-4">
+  <div class="text-center mb-6">
+    <p class="text-xl font-semibold dark:text-white">TODO LIST</p>
+  </div>
+
+  <div class="space-y-3 flex gap-1 mb-3 h-[48px]">
+    <input type="text" [(ngModel)]="searchValue" (ngModelChange)="searchChange($event)" placeholder="Search tasks..."
+      class="w-full rounded-none border-b border-primary px-3 py-2 mb-4 text-sm h-[48px]
+           placeholder:text-primary
+           hover:border-b-[2px] hover:border-primary
+           focus:border-b-[2px] focus:border-primary
+           focus:outline-none
+           dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400
+           dark:hover:border-primary dark:focus:border-primary" />
+
+    <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()"
+      class="rounded px-3 py-2 mb-4 text-sm bg-primary text-white h-[48px]
+                  transition-colors duration-200
+                  hover:bg-primary-hover
+                  active:bg-primary-active
+                  focus:outline-none focus:ring-2 focus:ring-primary/30
+                  dark:bg-primary dark:text-white dark:hover:bg-[color:var(--color-primary-hover)] dark:active:bg-[color:var(--color-primary-active)]">
+      <option value="all">All</option>
+      <option value="completed">Completed</option>
+      <option value="pending">Pending</option>
+    </select>
+
+    <button (click)="toggleTheme()"
+      class="bg-primary cursor-pointer text-white rounded text-sm flex items-center justify-center px-3 h-[48px]
+                  transition-colors duration-200
+                  hover:bg-[color:var(--color-primary-hover)]
+                  active:bg-[color:var(--color-primary-active)]
+                  focus:outline-none focus:ring-2 focus:ring-primary/30
+                  dark:bg-primary dark:hover:bg-[color:var(--color-primary-hover)] dark:active:bg-[color:var(--color-primary-active)]">
+      @if(theme() === 'dark') {
+      <span class="material-symbols-outlined">bedtime</span>
+      } @else {
+      <span class="material-symbols-outlined">clear_day</span>
+      }
+    </button>
+
+  </div>
+
+  <div class="space-y-3 flex flex-col gap-1">
+    @for (task of tasks(); track $index) {
+    <app-task (taskUpdated)="taskUpdated()" [task]="task"></app-task>
+    }
+  </div>
+
+  <button
+    class="fixed cursor-pointer bottom-6 right-6 bg-primary text-white w-12 h-12 rounded-full shadow-lg text-2xl flex items-center justify-center"
+    aria-label="Add task" (click)="openModal()">
+    +
+  </button>
+</div>
+
+@if(showModal()) {
+<div class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+  <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 w-full max-w-sm">
+    <h2 class="text-lg font-semibold mb-4 dark:text-white">Add New Task</h2>
+
+    <label class="block mb-2 text-sm font-medium dark:text-white">Title</label>
+    <input type="text"
+      class="w-full border rounded px-3 py-2 mb-4 text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+      [(ngModel)]="title" (ngModelChange)="title.set($event)" />
+
+    <label class="block mb-2 text-sm font-medium dark:text-white">Description</label>
+    <textarea rows="2"
+      class="w-full border rounded px-3 py-2 mb-4 text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+      [(ngModel)]="description" (ngModelChange)="description.set($event)"></textarea>
+
+    <div class="flex justify-end gap-2">
+      <button class="px-4 cursor-pointer py-2 text-sm border rounded dark:border-gray-600 dark:text-white"
+        (click)="closeModal()">
+        Cancel
+      </button>
+      <button class="px-4 cursor-pointer py-2 text-sm bg-primary text-white rounded" (click)="createTask()">
+        Create
+      </button>
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: oklch(0.5973 0.2237 279.77);
+  --color-primary-hover: oklch(0.5473 0.2237 279.77);
+  --color-primary-active: oklch(0.4973 0.2237 279.77);
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  font-family: 'Inter', sans-serif;
+  @apply bg-white text-black transition-colors duration-300;
+}
+.dark body {
+  @apply bg-gray-900 text-white;
+}

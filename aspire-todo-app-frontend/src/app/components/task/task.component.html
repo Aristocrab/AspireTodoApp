@@ -1,0 +1,53 @@
+<div class="flex items-start justify-between bg-white dark:bg-gray-800 shadow-sm rounded-lg p-4">
+  <div class="flex flex-col items-start space-x-3">
+    <div class="flex gap-2 items-center">
+      <input [id]="'checkbox-' + task().id" (change)="toggleTask()" [checked]="task().status === Status.Completed"
+        type="checkbox" class="w-6 h-6 accent-primary dark:accent-primary" />
+      <label [htmlFor]="'checkbox-' + task().id" class="font-medium text-lg select-none dark:text-white"
+        [class.line-through]="task().status === Status.Completed"
+        [ngClass]="{ 'text-gray-600': task().status === Status.Completed }">
+        {{ task().title }}
+      </label>
+    </div>
+    <div>
+      <p class="font-medium text-gray-600 dark:text-gray-300 text-md">{{ task().description }}</p>
+      <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
+        {{ task().createdAt | date : 'dd.MM.yyyy HH:mm' }}
+      </p>
+    </div>
+  </div>
+  <div class="flex items-center gap-1">
+    <span class="material-symbols-outlined text-gray-400 dark:text-gray-300 cursor-pointer hover:text-primary"
+      (click)="openEditModal()">edit</span>
+    <span (click)="delete()"
+      class="material-symbols-outlined text-gray-400 dark:text-red-300 cursor-pointer hover:text-red-600">delete</span>
+  </div>
+</div>
+
+@if(isEditing()) {
+<div class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+  <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 w-full max-w-sm">
+    <h2 class="text-lg font-semibold mb-4 dark:text-white">Edit Task</h2>
+
+    <label class="block mb-2 text-sm font-medium dark:text-white">Title</label>
+    <input type="text"
+      class="w-full border rounded px-3 py-2 mb-4 text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+      [value]="editTitle()" (input)="editTitle.set($any($event.target).value)" />
+
+    <label class="block mb-2 text-sm font-medium dark:text-white">Description</label>
+    <textarea rows="2"
+      class="w-full border rounded px-3 py-2 mb-4 text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+      [value]="editDescription()" (input)="editDescription.set($any($event.target).value)"></textarea>
+
+    <div class="flex justify-end gap-2">
+      <button class="px-4 py-2 cursor-pointer text-sm border rounded dark:border-gray-600 dark:text-white"
+        (click)="closeEditModal()">
+        Cancel
+      </button>
+      <button class="px-4 py-2 cursor-pointer text-sm bg-primary text-white rounded" (click)="saveEdit()">
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+}
