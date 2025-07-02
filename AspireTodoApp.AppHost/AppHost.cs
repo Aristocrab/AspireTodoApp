@@ -5,10 +5,12 @@ var cache = builder
 
 var postgresdb = builder
     .AddPostgres("postgres")
+    // .WithDataVolume(isReadOnly: false) // uncomment to enable saving data to docker volume
     .AddDatabase("postgresdb");
 
 var mongo = builder
     .AddMongoDB("mongo")
+    // .WithDataVolume(isReadOnly: false) // uncomment to enable saving data to docker volume
     .AddDatabase("mongodb");
 
 var api = builder
