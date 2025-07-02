@@ -5,8 +5,8 @@
 ## How to run
 Requires Docker to be running
 ```
-cd AspireTodoApp.AppHost
-dotnet run
+> cd AspireTodoApp.AppHost
+> dotnet run
 ```
 
 ## Technologies used  
