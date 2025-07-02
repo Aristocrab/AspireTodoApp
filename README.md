@@ -23,7 +23,8 @@ dotnet run
 ## Screenshots
 
 ### Angular
-You can switch between REST and GraphQL, as well as between MongoDB and Postgres
+You can switch between REST and GraphQL, as well as between MongoDB and Postgres. The data is synced between the two databases.
+
 ![](/img/angular.png)
 
 ### Aspire resources
