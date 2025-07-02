@@ -23,6 +23,7 @@ dotnet run
 ## Screenshots
 
 ### Angular
+You can switch between REST and GraphQL, as well as between MongoDB and Postgres
 ![](/img/angular.png)
 
 ### Aspire resources
