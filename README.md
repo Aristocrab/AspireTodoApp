@@ -3,21 +3,21 @@
 ![Unit tests](https://github.com/Aristocrab/AspireTodoApp/actions/workflows/dotnet.yml/badge.svg)
 
 ## How to run
-
+Requires Docker to be running
 ```
 cd AspireTodoApp.AppHost
 dotnet run
 ```
 
 ## Technologies used  
-- .NET Aspire (+ Docker)
+- .NET Aspire (with Docker)
 - ASP.NET Core
 - EF Core
 - MongoDB.Driver
 - Serilog
 - HotChocolate (GraphQL)
 - Redis
-- Scalar API docs
+- Scalar (API docs)
 - Angular
 
 ## Screenshots
