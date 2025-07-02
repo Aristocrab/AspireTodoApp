@@ -9,6 +9,7 @@
 - HotChocolate (GraphQL)
 - Redis
 - Scalar API docs
+- Angular
 
 ## Screenshots
 
