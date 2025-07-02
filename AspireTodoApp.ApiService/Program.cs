@@ -3,6 +3,7 @@ using AspireTodoApp.ApiService.Database;
 using AspireTodoApp.ApiService.GraphQL;
 using AspireTodoApp.ApiService.Services;
 using AspireTodoApp.ServiceDefaults;
+using Microsoft.AspNetCore.Mvc;
 using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Events;
@@ -22,17 +23,23 @@ builder.AddServiceDefaults();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
-// Postgres:
+// Postgres
 builder.AddNpgsqlDbContext<AppDbContext>(connectionName: "postgresdb");
-builder.Services.AddTransient<ITasksService, TasksService>();
+builder.Services.AddTransient<PostgresTasksService>();
 
 // MongoDB
 builder.AddMongoDBClient(connectionName: "mongodb");
-builder.Services.AddTransient<ITasksService, MongoTasksService>();
+builder.Services.AddTransient<MongoTasksService>();
+
+// Synced Tasks Service
+builder.Services.AddTransient<ITasksService, SyncedTasksService>();
 
 // Redis
 builder.AddRedisDistributedCache(connectionName: "cache");
 builder.Services.Decorate<ITasksService, CachedTasksService>();
+
+// Database Seeder
+builder.Services.AddTransient<DbSeeder>();
 
 // GraphQL
 builder.Services.AddSingleton<MongoDbContext>();
@@ -43,9 +50,22 @@ builder.Services
     .AddMongoDbFiltering()
     .AddMongoDbSorting();
 
-builder.Services.AddControllers();
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+builder.Services.AddControllers(options =>
+{
+    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+});
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbSeeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
+    await dbSeeder.SeedDatabaseAsync();
+}
 
 app.MapGraphQL();
 

@@ -19,7 +19,9 @@ public class MongoTasksService : ITasksService
         var db = _client.GetDatabase("mongodb");
 
         var tasks = await db.GetCollection<TodoTask>("tasks")
-            .Find("{}").ToListAsync();
+            .Find("{}")
+            .Sort(Builders<TodoTask>.Sort.Descending(x => x.CreatedAt))
+            .ToListAsync();
 
         return tasks;
     }
@@ -37,10 +39,15 @@ public class MongoTasksService : ITasksService
 
     public async Task<ErrorOr<Created>> AddTask(CreateTodoTaskDto createTodoTaskDto)
     {
+        if (string.IsNullOrWhiteSpace(createTodoTaskDto.Title))
+        {
+            return Error.Validation("Title cannot be empty.");
+        }
+        
         var db = _client.GetDatabase("mongodb");
 
-        var task = new TodoTask(Guid.NewGuid(), createTodoTaskDto.Title, createTodoTaskDto.Description,
-            createTodoTaskDto.Status, DateTime.Now);
+        var task = new TodoTask(createTodoTaskDto.Id ?? Guid.NewGuid(), createTodoTaskDto.Title, createTodoTaskDto.Description,
+            Status.Pending, DateTime.Now);
 
         await db.GetCollection<TodoTask>("tasks")
             .InsertOneAsync(task);
@@ -72,6 +79,11 @@ public class MongoTasksService : ITasksService
 
     public async Task<ErrorOr<Updated>> UpdateTask(UpdateTodoTaskDto updateTodoTaskDto)
     {
+        if (string.IsNullOrWhiteSpace(updateTodoTaskDto.Title))
+        {
+            return Error.Validation("Title cannot be empty.");
+        }
+        
         var db = _client.GetDatabase("mongodb");
 
         var update = Builders<TodoTask>.Update

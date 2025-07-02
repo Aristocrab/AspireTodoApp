@@ -1,48 +1,36 @@
-using AspireTodoApp.ApiService.Database;
 using AspireTodoApp.ApiService.Models;
-using MongoDB.Driver;
+using AspireTodoApp.ApiService.Services;
 
 namespace AspireTodoApp.ApiService.GraphQL;
 
 public class Mutation
 {
-    public async Task<TodoTask> AddTodoTask(string title, string? description, [Service] MongoDbContext context)
+    public async Task<bool> AddTodoTask(string title, string? description, [Service] ITasksService tasksService)
     {
-        var task = new TodoTask(Guid.NewGuid(), title, description, Status.Pending, DateTime.UtcNow);
-        await context.TodoTasks.InsertOneAsync(task);
-        return task;
+        var result = await tasksService.AddTask(new CreateTodoTaskDto(title, description));
+        
+        return !result.IsError;
     }
     
-    public async Task<bool> ToggleTaskStatus(Guid taskId, [Service] MongoDbContext context)
+    public async Task<bool> ToggleTaskStatus(Guid taskId, [Service] ITasksService tasksService)
     {
-        var task = await context.TodoTasks
-            .Find(x => x.Id == taskId)
-            .FirstOrDefaultAsync();
-
-        if (task == null)
-            return false;
-
-        var newStatus = task.Status == Status.Completed ? Status.Pending : Status.Completed;
-
-        var update = Builders<TodoTask>.Update.Set(x => x.Status, newStatus);
-
-        var result = await context.TodoTasks.UpdateOneAsync(x => x.Id == taskId, update);
-        return result.ModifiedCount > 0;
+        var result = await tasksService.ToggleTaskStatus(taskId);
+        
+        return !result.IsError;
     }
 
-    public async Task<bool> UpdateTask(Guid id, string title, string? description, [Service] MongoDbContext context)
+    public async Task<bool> UpdateTask(Guid id, string title, string? description, [Service] ITasksService tasksService)
     {
-        var update = Builders<TodoTask>.Update
-            .Set(x => x.Title, title)
-            .Set(x => x.Description, description);
-
-        var result = await context.TodoTasks.UpdateOneAsync(x => x.Id == id, update);
-        return result.ModifiedCount > 0;
+        var updateDto = new UpdateTodoTaskDto(id, title, description);
+        var result = await tasksService.UpdateTask(updateDto);
+        
+        return !result.IsError;
     }
 
-    public async Task<bool> DeleteTask(Guid taskId, [Service] MongoDbContext context)
+    public async Task<bool> DeleteTask(Guid taskId, [Service] ITasksService tasksService)
     {
-        var result = await context.TodoTasks.DeleteOneAsync(x => x.Id == taskId);
-        return result.DeletedCount > 0;
+        var result = await tasksService.DeleteTask(taskId);
+        
+        return !result.IsError;
     }
 }

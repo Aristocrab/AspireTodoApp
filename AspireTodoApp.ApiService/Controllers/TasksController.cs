@@ -27,7 +27,7 @@ public class TasksController : ControllerBase
         var result = await _tasksService.GetTaskById(taskId);
         return result.Match<ActionResult<TodoTask>>(
             task => Ok(task),
-            errors => Problem(statusCode: 404, title: errors.FirstOrDefault().Description)
+            errors => Problem(statusCode: 404, title: errors.FirstOrDefault().Code)
         );
     }
 
@@ -37,7 +37,7 @@ public class TasksController : ControllerBase
         var result = await _tasksService.AddTask(createTodoTaskDto);
         return result.Match<ActionResult>(
             _ => NoContent(),
-            errors => Problem(statusCode: 400, title: errors.FirstOrDefault().Description)
+            errors => Problem(statusCode: 400, title: errors.FirstOrDefault().Code)
         );
     }
 
@@ -47,7 +47,7 @@ public class TasksController : ControllerBase
         var result = await _tasksService.UpdateTask(updateTodoTaskDto);
         return result.Match<ActionResult>(
             _ => NoContent(),
-            errors => Problem(statusCode: 400, title: errors.FirstOrDefault().Description)
+            errors => Problem(statusCode: 400, title: errors.FirstOrDefault().Code)
         );
     }
 
@@ -57,7 +57,7 @@ public class TasksController : ControllerBase
         var result = await _tasksService.ToggleTaskStatus(taskId);
         return result.Match<ActionResult>(
             _ => NoContent(),
-            errors => Problem(statusCode: 404, title: errors.FirstOrDefault().Description)
+            errors => Problem(statusCode: 404, title: errors.FirstOrDefault().Code)
         );
     }
 
@@ -67,7 +67,7 @@ public class TasksController : ControllerBase
         var result = await _tasksService.DeleteTask(taskId);
         return result.Match<ActionResult>(
             _ => NoContent(),
-            errors => Problem(statusCode: 404, title: errors.FirstOrDefault().Description)
+            errors => Problem(statusCode: 404, title: errors.FirstOrDefault().Code)
         );
     }
 }

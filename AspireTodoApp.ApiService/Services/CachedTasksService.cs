@@ -52,36 +52,36 @@ public class CachedTasksService : ITasksService
 
     public async Task<ErrorOr<Created>> AddTask(CreateTodoTaskDto createTodoTaskDto)
     {
-        await _tasksService.AddTask(createTodoTaskDto);
+        var result = await _tasksService.AddTask(createTodoTaskDto);
         await _cache.RemoveAsync("tasks:all");
 
-        return Result.Created;
+        return result;
     }
 
     public async Task<ErrorOr<Updated>> ToggleTaskStatus(Guid taskId)
     {
-        await _tasksService.ToggleTaskStatus(taskId);
+        var result = await _tasksService.ToggleTaskStatus(taskId);
         await _cache.RemoveAsync("tasks:all");
         await _cache.RemoveAsync($"tasks:{taskId}");
 
-        return Result.Updated;
+        return result;
     }
 
     public async Task<ErrorOr<Updated>> UpdateTask(UpdateTodoTaskDto updateTodoTaskDto)
     {
-        await _tasksService.UpdateTask(updateTodoTaskDto);
+        var result = await _tasksService.UpdateTask(updateTodoTaskDto);
         await _cache.RemoveAsync("tasks:all");
         await _cache.RemoveAsync($"tasks:{updateTodoTaskDto.Id}");
 
-        return Result.Updated;
+        return result;
     }
 
     public async Task<ErrorOr<Deleted>> DeleteTask(Guid taskId)
     {
-        await _tasksService.DeleteTask(taskId);
+        var result = await _tasksService.DeleteTask(taskId);
         await _cache.RemoveAsync("tasks:all");
         await _cache.RemoveAsync($"tasks:{taskId}");
 
-        return Result.Deleted;
+        return result;
     }
 }

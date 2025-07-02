@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
 namespace AspireTodoApp.ApiService.Models;
 
-public record CreateTodoTaskDto(string Title, string? Description, Status Status);
+[ValidateNever]
+public record CreateTodoTaskDto(string Title, string? Description = null, Guid? Id = null);

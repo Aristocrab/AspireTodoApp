@@ -3,13 +3,12 @@ var builder = DistributedApplication.CreateBuilder(args);
 var cache = builder
     .AddRedis("cache");
 
-var postgres = builder.AddPostgres("postgres")
-    .WithDataVolume(isReadOnly: false);
-var postgresdb = postgres.AddDatabase("postgresdb");
+var postgresdb = builder
+    .AddPostgres("postgres")
+    .AddDatabase("postgresdb");
 
 var mongo = builder
     .AddMongoDB("mongo")
-    .WithDataVolume(isReadOnly: false)
     .AddDatabase("mongodb");
 
 var api = builder

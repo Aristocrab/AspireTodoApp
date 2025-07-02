@@ -6,18 +6,18 @@ using Error = ErrorOr.Error;
 
 namespace AspireTodoApp.ApiService.Services;
 
-public class TasksService : ITasksService
+public class PostgresTasksService : ITasksService
 {
     private readonly AppDbContext _context;
 
-    public TasksService(AppDbContext context)
+    public PostgresTasksService(AppDbContext context)
     {
         _context = context;
     }
 
     public async Task<List<TodoTask>> GetAllTasks()
     {
-        return await _context.Tasks.ToListAsync();
+        return await _context.Tasks.OrderByDescending(x => x.CreatedAt).ToListAsync();
     }
 
     public async Task<ErrorOr<TodoTask>> GetTaskById(Guid id)
@@ -44,13 +44,8 @@ public class TasksService : ITasksService
             return Error.Validation("Title cannot be empty.");
         }
         
-        if (createTodoTaskDto.Status != Status.Pending && createTodoTaskDto.Status != Status.Completed)
-        {
-            return Error.Validation("Invalid status.");
-        }
-        
-        var task = new TodoTask(Guid.NewGuid(), createTodoTaskDto.Title, createTodoTaskDto.Description,
-            createTodoTaskDto.Status, DateTime.UtcNow);
+        var task = new TodoTask(createTodoTaskDto.Id ?? Guid.NewGuid(), createTodoTaskDto.Title, createTodoTaskDto.Description,
+            Status.Pending, DateTime.UtcNow);
 
         _context.Tasks.Add(task);
         await _context.SaveChangesAsync();
@@ -75,6 +70,11 @@ public class TasksService : ITasksService
 
     public async Task<ErrorOr<Updated>> UpdateTask(UpdateTodoTaskDto updateTodoTaskDto)
     {
+        if (string.IsNullOrWhiteSpace(updateTodoTaskDto.Title))
+        {
+            return Error.Validation("Title cannot be empty.");
+        }
+        
         var existing = await _context.Tasks.AsNoTracking().FirstOrDefaultAsync(t => t.Id == updateTodoTaskDto.Id);
         if (existing is null)
         {
