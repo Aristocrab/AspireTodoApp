@@ -2,6 +2,13 @@
 
 ![Unit tests](https://github.com/Aristocrab/AspireTodoApp/actions/workflows/dotnet.yml/badge.svg)
 
+## How to run
+
+```
+cd AspireTodoApp.AppHost
+dotnet run
+```
+
 ## Technologies used  
 - .NET Aspire (+ Docker)
 - ASP.NET Core
