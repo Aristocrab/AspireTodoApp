@@ -21,7 +21,7 @@ body {
 
 .my-toast-info {
   @apply bg-primary text-white border-none shadow-none
-  hover:bg-primary-hover active:bg-primary-active select-none w-[400px];
+  hover:bg-primary-hover active:bg-primary-active select-none w-[400px] max-[1650px]:hidden;
   width: 500px !important;
 }
 
