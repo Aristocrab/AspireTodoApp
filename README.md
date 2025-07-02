@@ -1,5 +1,7 @@
 # AspireTodoApp
 
+![Unit tests](https://github.com/Aristocrab/AspireTodoApp/actions/workflows/dotnet.yml/badge.svg)
+
 ## Technologies used  
 - .NET Aspire (+ Docker)
 - ASP.NET Core
