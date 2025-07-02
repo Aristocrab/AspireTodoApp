@@ -55,14 +55,13 @@ public class PostgresTasksService : ITasksService
 
     public async Task<ErrorOr<Updated>> ToggleTaskStatus(Guid taskId)
     {
-        var existing = await _context.Tasks.AsNoTracking().FirstOrDefaultAsync(t => t.Id == taskId);
+        var existing = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == taskId);
         if (existing is null)
         {
             return Error.NotFound("Task not found.");
         }
 
-        var updated = existing with { Status = existing.Status == Status.Completed ? Status.Pending : Status.Completed };
-        _context.Tasks.Update(updated);
+        existing.Status = existing.Status == Status.Pending ? Status.Completed : Status.Pending;
         await _context.SaveChangesAsync();
         
         return Result.Updated;
@@ -75,19 +74,14 @@ public class PostgresTasksService : ITasksService
             return Error.Validation("Title cannot be empty.");
         }
         
-        var existing = await _context.Tasks.AsNoTracking().FirstOrDefaultAsync(t => t.Id == updateTodoTaskDto.Id);
+        var existing = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == updateTodoTaskDto.Id);
         if (existing is null)
         {
             return Error.NotFound("Task not found.");
         }
 
-        var updated = existing with
-        {
-            Title = updateTodoTaskDto.Title,
-            Description = updateTodoTaskDto.Description
-        };
-
-        _context.Tasks.Update(updated);
+        existing.Title = updateTodoTaskDto.Title;
+        existing.Description = updateTodoTaskDto.Description;
         await _context.SaveChangesAsync();
         
         return Result.Updated;
