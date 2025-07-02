@@ -4,6 +4,7 @@ import { TodoTask } from '../types/TodoTask';
 import { map, Observable } from 'rxjs';
 import { CreateTodoTaskDto } from '../types/CreateTodoTaskDto';
 import { UpdateTodoTaskDto } from '../types/UpdateTodoTaskDto';
+import { Status } from '../types/Status';
 
 @Injectable({ providedIn: 'root' })
 export class TasksGraphQLService {
@@ -22,9 +23,26 @@ export class TasksGraphQLService {
       }
     `;
 
-    return this.apollo
-      .query<{ todoTasks: TodoTask[] }>({ query: GET_TASKS })
-      .pipe(map(result => result.data.todoTasks));
+    var res = this.apollo
+      .watchQuery<{ todoTasks: TodoTask[] }>({
+        query: GET_TASKS,
+        fetchPolicy: 'network-only',
+      })
+      .valueChanges.pipe(
+        map((result) =>
+          result.data.todoTasks.map((task) => ({
+            ...task,
+            status:
+              (task.status as unknown as string) === 'COMPLETED'
+                ? Status.Completed
+                : (task.status as unknown as string) === 'PENDING'
+                ? Status.Pending
+                : task.status,
+          }))
+        )
+      );
+
+    return res;
   }
 
   getById(taskId: string): Observable<TodoTask> {
@@ -41,20 +59,18 @@ export class TasksGraphQLService {
     `;
 
     return this.apollo
-      .watchQuery<{ todoTasks: TodoTask[] }>({
+      .query<{ todoTasks: TodoTask[] }>({
         query: GET_TASK,
-        variables: { taskId }
+        variables: { taskId },
+        fetchPolicy: 'network-only',
       })
-      .valueChanges
-      .pipe(map(result => result.data.todoTasks[0]));
+      .pipe(map((result) => result.data.todoTasks[0]));
   }
 
   create(dto: CreateTodoTaskDto): Observable<void> {
     const CREATE_TASK = gql`
       mutation AddTodoTask($title: String!, $description: String) {
-        addTodoTask(title: $title, description: $description) {
-          id
-        }
+        addTodoTask(title: $title, description: $description)
       }
     `;
 
@@ -63,8 +79,8 @@ export class TasksGraphQLService {
         mutation: CREATE_TASK,
         variables: {
           title: dto.title,
-          description: dto.description
-        }
+          description: dto.description,
+        },
       })
       .pipe(map(() => void 0));
   }
@@ -82,8 +98,8 @@ export class TasksGraphQLService {
         variables: {
           id: dto.id,
           title: dto.title,
-          description: dto.description
-        }
+          description: dto.description,
+        },
       })
       .pipe(map(() => void 0));
   }
@@ -98,7 +114,7 @@ export class TasksGraphQLService {
     return this.apollo
       .mutate<{ toggleTaskStatus: boolean }>({
         mutation: TOGGLE_TASK,
-        variables: { taskId }
+        variables: { taskId },
       })
       .pipe(map(() => void 0));
   }
@@ -113,7 +129,7 @@ export class TasksGraphQLService {
     return this.apollo
       .mutate<{ deleteTask: boolean }>({
         mutation: DELETE_TASK,
-        variables: { taskId }
+        variables: { taskId },
       })
       .pipe(map(() => void 0));
   }

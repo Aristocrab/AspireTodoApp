@@ -8,32 +8,32 @@ import { UpdateTodoTaskDto } from '../types/UpdateTodoTaskDto';
 
 @Injectable({ providedIn: 'root' })
 export class TasksService {
-  private readonly http = inject(HttpClient)
-  private readonly baseUrl = `${environment.apiUrl}/Tasks`
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiUrl}/Tasks`;
 
   getAll(): Observable<TodoTask[]> {
-    return this.http.get<TodoTask[]>(this.baseUrl)
+    return this.http.get<TodoTask[]>(this.baseUrl);
   }
 
   getById(taskId: string): Observable<TodoTask> {
-    return this.http.get<TodoTask>(`${this.baseUrl}/${taskId}`)
+    return this.http.get<TodoTask>(`${this.baseUrl}/${taskId}`);
   }
 
   create(dto: CreateTodoTaskDto): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/new`, dto)
+    return this.http.post<void>(`${this.baseUrl}/new`, dto);
   }
 
   update(dto: UpdateTodoTaskDto): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/update`, dto)
+    return this.http.put<void>(`${this.baseUrl}/update`, dto);
   }
 
   toggle(taskId: string): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/toggle/${taskId}`, null)
+    return this.http.put<void>(`${this.baseUrl}/toggle/${taskId}`, null);
   }
 
   delete(taskId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/delete`, {
-      params: { taskId }
-    })
+      params: { taskId },
+    });
   }
 }

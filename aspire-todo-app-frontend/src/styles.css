@@ -8,10 +8,23 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@import "ngx-toastr/toastr";
+
 body {
-  font-family: 'Inter', sans-serif;
-  @apply bg-white text-black transition-colors duration-300;
+  font-family: "Inter", sans-serif;
+  @apply bg-white text-black transition-colors duration-300 selection:text-white selection:bg-primary;
 }
+
 .dark body {
   @apply bg-gray-900 text-white;
+}
+
+.my-toast-info {
+  @apply bg-primary text-white border-none shadow-none
+  hover:bg-primary-hover active:bg-primary-active select-none w-[400px];
+  width: 500px !important;
+}
+
+.toast-shadow-remove {
+  box-shadow: none !important;
 }

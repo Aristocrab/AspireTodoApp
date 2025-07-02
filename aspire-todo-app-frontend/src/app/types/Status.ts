@@ -1,4 +1,4 @@
 export enum Status {
   Pending = 0,
-  Completed = 1
+  Completed = 1,
 }

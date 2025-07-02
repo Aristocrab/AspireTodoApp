@@ -3,68 +3,76 @@ import {
   signal,
   input,
   output,
+  ChangeDetectionStrategy,
+  HostListener,
+  ElementRef,
   inject,
-  ChangeDetectionStrategy
-} from '@angular/core'
-import { CommonModule } from '@angular/common'
-import { TasksService } from '../../services/tasks.service'
-import { UpdateTodoTaskDto } from '../../types/UpdateTodoTaskDto'
-import { TodoTask } from '../../types/TodoTask'
-import { Status } from '../../types/Status'
-import { TasksGraphQLService } from '../../services/tasks-graphql.service'
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { UpdateTodoTaskDto } from '../../types/UpdateTodoTaskDto';
+import { TodoTask } from '../../types/TodoTask';
+import { Status } from '../../types/Status';
 
 @Component({
   selector: 'app-task',
   imports: [CommonModule],
   templateUrl: './task.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class TaskComponent {
-  readonly tasksService = inject(TasksGraphQLService)
+  readonly task = input.required<TodoTask>();
 
-  readonly task = input.required<TodoTask>()
-  readonly taskUpdated = output<void>()
+  readonly taskToggled = output<string>();
+  readonly taskDeleted = output<string>();
+  readonly taskEdited = output<UpdateTodoTaskDto>();
 
-  readonly Status = Status
+  readonly Status = Status;
 
-  readonly isEditing = signal(false)
-  readonly editTitle = signal('')
-  readonly editDescription = signal('')
+  readonly isEditing = signal(false);
+  readonly editTitle = signal('');
+  readonly editDescription = signal('');
 
   readonly toggleTask = (): void => {
-    const currentStatus = this.task().status
-    // this.task().status = currentStatus === Status.Completed ? Status.Pending : Status.Completed
-
-    this.tasksService.toggle(this.task().id).subscribe(() => {
-      this.taskUpdated.emit()
-    })
-  }
+    this.taskToggled.emit(this.task().id);
+  };
 
   readonly delete = (): void => {
-    this.tasksService.delete(this.task().id).subscribe(() => {
-      this.taskUpdated.emit()
-    })
-  }
+    this.taskDeleted.emit(this.task().id);
+  };
 
   readonly openEditModal = (): void => {
-    this.editTitle.set(this.task().title)
-    this.editDescription.set(this.task().description ?? "")
-    this.isEditing.set(true)
-  }
+    this.editTitle.set(this.task().title);
+    this.editDescription.set(this.task().description ?? '');
+    this.isEditing.set(true);
+  };
 
   readonly closeEditModal = (): void => {
-    this.isEditing.set(false)
-  }
+    this.isEditing.set(false);
+  };
 
   readonly saveEdit = (): void => {
     const updatedTask: UpdateTodoTaskDto = {
       id: this.task().id,
       title: this.editTitle(),
       description: this.editDescription(),
+    };
+    this.taskEdited.emit(updatedTask);
+    this.isEditing.set(false);
+  };
+
+  private readonly el = inject(ElementRef);
+
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscape(event: KeyboardEvent): void {
+    if (this.isEditing()) {
+      this.isEditing.set(false);
     }
-    this.tasksService.update(updatedTask).subscribe(() => {
-      this.taskUpdated.emit()
-      this.isEditing.set(false)
-    })
+  }
+
+  onBackdropClick(event: MouseEvent): void {
+    const modalContent = this.el.nativeElement.querySelector('.modal-content');
+    if (modalContent && !modalContent.contains(event.target)) {
+      this.isEditing.set(false);
+    }
   }
 }
