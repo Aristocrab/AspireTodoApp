@@ -19,6 +19,7 @@ Requires Docker to be running
 - Redis
 - Scalar (API docs)
 - Angular
+- Tailwind
 
 ## Screenshots
 
