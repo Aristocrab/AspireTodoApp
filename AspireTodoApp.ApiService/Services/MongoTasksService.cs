@@ -30,11 +30,22 @@ public class MongoTasksService : ITasksService
     {
         var db = _client.GetDatabase("mongodb");
         
-        var task = await db.GetCollection<TodoTask>("tasks")
+        
+        if (id == Guid.Empty)
+        {
+            return Error.Validation("Invalid task ID.");
+        }
+        
+        var result = await db.GetCollection<TodoTask>("tasks")
             .Find(x => x.Id == id)
             .FirstOrDefaultAsync();
+        
+        if (result is null)
+        {
+            return Error.NotFound("Task not found.");
+        }
 
-        return task;
+        return result;
     }
 
     public async Task<ErrorOr<Created>> AddTask(CreateTodoTaskDto createTodoTaskDto)
@@ -83,26 +94,37 @@ public class MongoTasksService : ITasksService
         {
             return Error.Validation("Title cannot be empty.");
         }
-        
+
         var db = _client.GetDatabase("mongodb");
+        var collection = db.GetCollection<TodoTask>("tasks");
+
+        var existing = await collection.Find(t => t.Id == updateTodoTaskDto.Id).FirstOrDefaultAsync();
+        if (existing is null)
+        {
+            return Error.NotFound("Task not found.");
+        }
 
         var update = Builders<TodoTask>.Update
             .Set(x => x.Title, updateTodoTaskDto.Title)
             .Set(x => x.Description, updateTodoTaskDto.Description);
-        
-        await db.GetCollection<TodoTask>("tasks")
-            .UpdateOneAsync(x => x.Id == updateTodoTaskDto.Id, update);
-        
+
+        await collection.UpdateOneAsync(x => x.Id == updateTodoTaskDto.Id, update);
+
         return Result.Updated;
     }
 
     public async Task<ErrorOr<Deleted>> DeleteTask(Guid taskId)
     {
         var db = _client.GetDatabase("mongodb");
+        var collection = db.GetCollection<TodoTask>("tasks");
 
-        await db.GetCollection<TodoTask>("tasks")
-            .DeleteOneAsync(x => x.Id == taskId);
-        
+        var existing = await collection.Find(t => t.Id == taskId).FirstOrDefaultAsync();
+        if (existing is null)
+        {
+            return Error.NotFound("Task not found.");
+        }
+
+        await collection.DeleteOneAsync(t => t.Id == taskId);
         return Result.Deleted;
     }
 }
