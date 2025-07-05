@@ -20,6 +20,8 @@ Requires Docker to be running
 - Scalar (API docs)
 - Angular
 - Tailwind
+- xunit
+- Shouldly
 
 ## Screenshots
 
